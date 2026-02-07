@@ -34,9 +34,18 @@ const UserSchema = new mongoose.Schema({
             type: String,
             required: [true, 'Please provide a full name']
         },
+        phoneCode: {
+            type: String,
+            default: '+1'
+        },
         phone: {
             type: String,
             required: [true, 'Please provide a phone number']
+        },
+        gender: {
+            type: String,
+            enum: ['Male', 'Female', 'Other'],
+            default: 'Male'
         },
         avatar: String,
         country: String,

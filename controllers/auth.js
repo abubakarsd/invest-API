@@ -137,10 +137,12 @@ exports.updateDetails = async (req, res, next) => {
         const fieldsToUpdate = {
             'profile.fullname': req.body.name, // Frontend sends 'name'
             'profile.phone': req.body.phone,
+            'profile.phoneCode': req.body.phoneCountry, // Frontend sends 'phoneCountry'
             'profile.country': req.body.country,
             'profile.city': req.body.city,
             'profile.address': req.body.address,
             'profile.zipCode': req.body.zipCode,
+            'profile.gender': req.body.gender,
             'profile.avatar': req.body.avatar
         };
 
