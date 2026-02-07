@@ -5,26 +5,62 @@ const User = require('../models/User');
 // @access  Public
 exports.register = async (req, res, next) => {
     try {
-        const { username, email, password, fullname } = req.body;
+        const { email, password, fullname } = req.body;
 
         // Sanitize: allow only strings
-        if ([username, email, password, fullname].some(field => typeof field !== 'string')) {
+        if ([email, password, fullname].some(field => typeof field !== 'string')) {
             return res.status(400).json({ success: false, error: 'Invalid input data' });
         }
 
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
         // Create user
         const user = await User.create({
-            username,
             email,
             password,
+            otp,
+            otpExpires,
             profile: {
                 fullname
             }
         });
 
-        sendTokenResponse(user, 200, res);
+        console.log(`OTP for ${email}: ${otp}`); // Log OTP to console
+
+        res.status(200).json({ success: true, data: { email, message: 'OTP sent to console' } });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
+    }
+};
+
+// @desc    Verify Email OTP
+// @route   POST /api/auth/verify-email
+// @access  Public
+exports.verifyEmail = async (req, res, next) => {
+    try {
+        const { email, otp } = req.body;
+
+        const user = await User.findOne({
+            email,
+            otp,
+            otpExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, error: 'Invalid or expired OTP' });
+        }
+
+        // Verify user and clear OTP
+        user.isVerified = true;
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        await user.save();
+
+        sendTokenResponse(user, 200, res);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
