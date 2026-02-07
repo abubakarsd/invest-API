@@ -5,10 +5,10 @@ const User = require('../models/User');
 // @access  Public
 exports.register = async (req, res, next) => {
     try {
-        const { email, password, fullname } = req.body;
+        const { email, password, fullname, phone } = req.body;
 
         // Sanitize: allow only strings
-        if ([email, password, fullname].some(field => typeof field !== 'string')) {
+        if ([email, password, fullname, phone].some(field => typeof field !== 'string')) {
             return res.status(400).json({ success: false, error: 'Invalid input data' });
         }
 
@@ -23,7 +23,8 @@ exports.register = async (req, res, next) => {
             otp,
             otpExpires,
             profile: {
-                fullname
+                fullname,
+                phone
             }
         });
 

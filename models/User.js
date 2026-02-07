@@ -30,8 +30,14 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     profile: {
-        fullname: String,
-        phone: String,
+        fullname: {
+            type: String,
+            required: [true, 'Please provide a full name']
+        },
+        phone: {
+            type: String,
+            required: [true, 'Please provide a phone number']
+        },
         avatar: String,
         country: String,
         city: String,
