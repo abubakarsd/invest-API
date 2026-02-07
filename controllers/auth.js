@@ -129,6 +129,32 @@ exports.logout = async (req, res, next) => {
     res.status(200).json({ success: true, data: {} });
 };
 
+// @desc    Update user details
+// @route   PUT /api/auth/updatedetails
+// @access  Private
+exports.updateDetails = async (req, res, next) => {
+    try {
+        const fieldsToUpdate = {
+            'profile.fullname': req.body.name, // Frontend sends 'name'
+            'profile.phone': req.body.phone,
+            'profile.country': req.body.country,
+            'profile.city': req.body.city,
+            'profile.address': req.body.address,
+            'profile.zipCode': req.body.zipCode,
+            'profile.avatar': req.body.avatar
+        };
+
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({ success: true, data: user });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // Create token
@@ -148,6 +174,7 @@ const sendTokenResponse = (user, statusCode, res) => {
         .cookie('token', token, options)
         .json({
             success: true,
-            token
+            token,
+            data: user // Send user data along with token
         });
 };
