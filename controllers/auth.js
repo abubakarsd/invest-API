@@ -41,6 +41,7 @@ exports.register = async (req, res, next) => {
 exports.verifyEmail = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
+        console.log('Verifying email:', { email, otp });
 
         const user = await User.findOne({
             email,
@@ -49,6 +50,7 @@ exports.verifyEmail = async (req, res, next) => {
         });
 
         if (!user) {
+            console.log('User not found or OTP invalid/expired');
             return res.status(400).json({ success: false, error: 'Invalid or expired OTP' });
         }
 
@@ -60,6 +62,7 @@ exports.verifyEmail = async (req, res, next) => {
 
         sendTokenResponse(user, 200, res);
     } catch (err) {
+        console.error('Verify Email Error:', err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
@@ -109,7 +112,7 @@ exports.getMe = async (req, res, next) => {
         const user = await User.findById(req.user.id);
         res.status(200).json({ success: true, data: user });
     } catch (err) {
-        res.status(500).json({ success: false, error: server.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
