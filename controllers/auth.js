@@ -28,7 +28,9 @@ exports.register = async (req, res, next) => {
             }
         });
 
+        console.log('================================================');
         console.log(`OTP for ${email}: ${otp}`); // Log OTP to console
+        console.log('================================================');
 
         res.status(200).json({ success: true, data: { email, message: 'OTP sent to console' } });
     } catch (err) {
