@@ -70,6 +70,42 @@ exports.verifyEmail = async (req, res, next) => {
     }
 };
 
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+exports.resendOtp = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ success: false, error: 'Email already verified' });
+        }
+
+        // Generate new OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        user.otp = otp;
+        user.otpExpires = otpExpires;
+        await user.save();
+
+        console.log('================================================');
+        console.log(`Resend OTP for ${email}: ${otp}`);
+        console.log('================================================');
+
+        res.status(200).json({ success: true, data: { message: 'OTP resent to console' } });
+    } catch (err) {
+        console.error('Resend OTP Error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
