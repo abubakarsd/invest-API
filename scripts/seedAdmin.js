@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' }); // Adjust path if running from scripts folder
+require('dotenv').config(); // Load .env from current directory (backend)
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
