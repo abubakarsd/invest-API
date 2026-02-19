@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { sendOtpEmail } = require('../utils/emailService');
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -28,11 +29,19 @@ exports.register = async (req, res, next) => {
             }
         });
 
-        console.log('================================================');
-        console.log(`OTP for ${email}: ${otp}`); // Log OTP to console
-        console.log('================================================');
+        // Send OTP via email
+        try {
+            await sendOtpEmail(email, otp);
+        } catch (emailErr) {
+            console.error('Email sending failed during registration:', emailErr);
+            // We still created the user, but tell the user there was an issue sending the email
+            return res.status(200).json({
+                success: true,
+                data: { email, message: 'User registered but failed to send verification email. Please try resending OTP.' }
+            });
+        }
 
-        res.status(200).json({ success: true, data: { email, message: 'OTP sent to console' } });
+        res.status(200).json({ success: true, data: { email, message: 'Verification OTP sent to your email' } });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
     }
@@ -95,11 +104,15 @@ exports.resendOtp = async (req, res, next) => {
         user.otpExpires = otpExpires;
         await user.save();
 
-        console.log('================================================');
-        console.log(`Resend OTP for ${email}: ${otp}`);
-        console.log('================================================');
+        // Send OTP via email
+        try {
+            await sendOtpEmail(email, otp);
+        } catch (emailErr) {
+            console.error('Email sending failed during resend:', emailErr);
+            return res.status(500).json({ success: false, error: 'Failed to send OTP email' });
+        }
 
-        res.status(200).json({ success: true, data: { message: 'OTP resent to console' } });
+        res.status(200).json({ success: true, data: { message: 'OTP verification code sent' } });
     } catch (err) {
         console.error('Resend OTP Error:', err);
         res.status(500).json({ success: false, error: err.message });
