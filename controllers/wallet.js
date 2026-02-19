@@ -1,5 +1,18 @@
 const Wallet = require('../models/Wallet');
 const Transaction = require('../models/Transaction');
+const SystemWallet = require('../models/SystemWallet');
+
+// @desc    Get all system wallets (deposit methods)
+// @route   GET /api/wallet/system-wallets
+// @access  Private
+exports.getSystemWallets = async (req, res, next) => {
+    try {
+        const wallets = await SystemWallet.find();
+        res.status(200).json({ success: true, count: wallets.length, data: wallets });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
 
 // @desc    Get user wallet
 // @route   GET /api/wallet
@@ -102,3 +115,5 @@ exports.getTransactions = async (req, res, next) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
+exports.getSystemWallets = exports.getSystemWallets;
