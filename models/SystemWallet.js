@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 
 const SystemWalletSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Please provide a wallet name']
+    },
     currency: {
         type: String,
         required: [true, 'Please provide a currency symbol'],
-        enum: ['BTC', 'ETH', 'USDT', 'LTC', 'XRP', 'DOGE', 'BNB'],
         uppercase: true
     },
     chain: {
@@ -16,12 +19,12 @@ const SystemWalletSchema = new mongoose.Schema({
         required: [true, 'Please provide the wallet address']
     },
     qrCode: {
-        type: String, // URL to the image
+        type: String, // Base64 or URL
         default: null
     },
-    label: {
-        type: String, // e.g., "Main BTC Wallet"
-        default: 'System Wallet'
+    icon: {
+        type: String, // Image filename
+        default: 'default-crypto.png'
     },
     isDefault: {
         type: Boolean,
