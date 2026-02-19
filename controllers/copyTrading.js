@@ -1,6 +1,19 @@
 const CopyTrading = require('../models/CopyTrading');
 const Wallet = require('../models/Wallet');
 const Transaction = require('../models/Transaction');
+const Expert = require('../models/Expert');
+
+// @desc    Get all active experts
+// @route   GET /api/copy-trading/experts
+// @access  Private (or Public? User needs to be logged in to copy generally, so Private is fine)
+exports.getExperts = async (req, res, next) => {
+    try {
+        const experts = await Expert.find({ status: 'active' });
+        res.status(200).json({ success: true, count: experts.length, data: experts });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
 
 // @desc    Get all active copy trading investments
 // @route   GET /api/copy-trading
