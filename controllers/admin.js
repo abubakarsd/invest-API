@@ -20,18 +20,16 @@ const saveBase64Image = (base64String, prefix) => {
     const buffer = Buffer.from(data, 'base64');
 
     // Path to React App's public assets (Local Development Setup)
-    const uploadDir = path.join(__dirname, '../../react-app/public/assets/dashboard/images');
-    console.log('DEBUG: saveBase64Image uploadDir:', uploadDir);
+    // process.cwd() is the root of where node was started (backend folder)
+    const uploadDir = path.join(process.cwd(), '../react-app/public/assets/dashboard/images');
 
     // Ensure directory exists
     if (!fs.existsSync(uploadDir)) {
-        console.log('DEBUG: Creating directory:', uploadDir);
         fs.mkdirSync(uploadDir, { recursive: true });
     }
 
     const filename = `${prefix}-${Date.now()}.${ext}`;
     const fullPath = path.join(uploadDir, filename);
-    console.log('DEBUG: Writing file to:', fullPath);
 
     fs.writeFileSync(fullPath, buffer);
 
