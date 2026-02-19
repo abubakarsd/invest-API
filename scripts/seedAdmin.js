@@ -16,12 +16,15 @@ const seedAdmin = async () => {
 
         if (user) {
             console.log('Admin already exists');
-            if (user.role !== 'admin') {
-                console.log('Updating existing user to admin role...');
-                user.role = 'admin';
-                await user.save();
-                console.log('User role updated to admin');
-            }
+            // Always update password and role to ensure access
+            user.role = 'admin';
+            user.password = adminPassword; // Triggers pre-save hash? No, direct assignment might not if not saving correctly.
+            // Actually, in Mongoose, assigning to field and saving triggers pre-save if modified.
+            // But we need to ensure 'password' is marked modified.
+            // Let's use user.password = ... and user.save()
+            user.password = adminPassword;
+            await user.save();
+            console.log('Admin credentials updated');
         } else {
             console.log('Creating new admin user...');
             await User.create({
