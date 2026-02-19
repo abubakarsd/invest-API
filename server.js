@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'], // Allow React frontend (Vite & CRA)
+    origin: ['https://copytradehome.vercel.app', 'http://localhost:5173'], // Allow React frontend (Vite & CRA)
     credentials: true
 }));
 app.use(cookieParser());
@@ -32,6 +32,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/wallet', require('./routes/wallet'));
 app.use('/api/copy-trading', require('./routes/copyTrading'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

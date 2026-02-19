@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
     profile: {
         fullname: {
             type: String,
