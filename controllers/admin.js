@@ -5,6 +5,33 @@ const SystemWallet = require('../models/SystemWallet');
 const Expert = require('../models/Expert');
 const Signal = require('../models/Signal');
 const Trade = require('../models/Trade');
+const fs = require('fs');
+const path = require('path');
+
+// Helper to save Base64 image
+const saveBase64Image = (base64String, prefix) => {
+    if (!base64String || !base64String.startsWith('data:image')) return base64String;
+
+    const matches = base64String.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+    if (!matches) return base64String;
+
+    const ext = matches[1];
+    const data = matches[2];
+    const buffer = Buffer.from(data, 'base64');
+
+    // Path to React App's public assets (Local Development Setup)
+    const uploadDir = path.join(__dirname, '../../react-app/public/assets/dashboard/images');
+
+    // Ensure directory exists
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const filename = `${prefix}-${Date.now()}.${ext}`;
+    fs.writeFileSync(path.join(uploadDir, filename), buffer);
+
+    return filename;
+};
 
 // @desc    Admin Login
 // @route   POST /api/admin/auth/login
@@ -74,6 +101,16 @@ exports.getSystemWallets = async (req, res) => {
 
 exports.addSystemWallet = async (req, res) => {
     try {
+        const { icon, qrCode } = req.body;
+
+        if (icon && icon.startsWith('data:image')) {
+            req.body.icon = saveBase64Image(icon, 'wallet-icon');
+        }
+
+        if (qrCode && qrCode.startsWith('data:image')) {
+            req.body.qrCode = saveBase64Image(qrCode, 'wallet-qr');
+        }
+
         const wallet = await SystemWallet.create(req.body);
         res.status(201).json({ success: true, data: wallet });
     } catch (err) {
@@ -238,6 +275,12 @@ exports.getExperts = async (req, res) => {
 
 exports.addExpert = async (req, res) => {
     try {
+        const { avatar } = req.body;
+
+        if (avatar && avatar.startsWith('data:image')) {
+            req.body.avatar = saveBase64Image(avatar, 'expert-avatar');
+        }
+
         const expert = await Expert.create(req.body);
         res.status(201).json({ success: true, data: expert });
     } catch (err) {
