@@ -33,6 +33,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/wallet', require('./routes/wallet'));
 app.use('/api/copy-trading', require('./routes/copyTrading'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/images', require('./routes/images'));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

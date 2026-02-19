@@ -40,11 +40,9 @@ router.use(authorize('admin'));
 router.get('/dashboard/stats', getDashboardStats);
 
 // System Wallets
-router.route('/wallets')
-    .get(getSystemWallets)
-    .post(addSystemWallet);
-router.route('/wallets/:id')
-    .delete(deleteSystemWallet);
+router.get('/wallets', getSystemWallets);
+router.post('/wallets', upload.fields([{ name: 'icon', maxCount: 1 }, { name: 'qrCode', maxCount: 1 }]), addSystemWallet); // Updated with upload middleware
+router.delete('/wallets/:id', deleteSystemWallet);
 
 // Users
 router.route('/users')

@@ -104,17 +104,28 @@ exports.getSystemWallets = async (req, res) => {
 
 exports.addSystemWallet = async (req, res) => {
     try {
-        const { icon, qrCode } = req.body;
+        const { name, currency, chain, address } = req.body;
+        let icon = 'default-crypto.png';
+        let qrCode = null;
 
-        if (icon && icon.startsWith('data:image')) {
-            req.body.icon = saveBase64Image(icon, 'wallet-icon');
+        if (req.files) {
+            if (req.files.icon) {
+                icon = req.files.icon[0].filename;
+            }
+            if (req.files.qrCode) {
+                qrCode = req.files.qrCode[0].filename;
+            }
         }
 
-        if (qrCode && qrCode.startsWith('data:image')) {
-            req.body.qrCode = saveBase64Image(qrCode, 'wallet-qr');
-        }
+        const wallet = await SystemWallet.create({
+            name,
+            currency,
+            chain,
+            address,
+            icon,
+            qrCode
+        });
 
-        const wallet = await SystemWallet.create(req.body);
         res.status(201).json({ success: true, data: wallet });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
