@@ -19,7 +19,11 @@ const {
     toggleExpertStatus,
     getSignals,
     addSignal,
-    deleteSignal
+    deleteSignal,
+    getTrades,
+    addTrade,
+    updateTrade,
+    deleteTrade
 } = require('../controllers/admin');
 
 const { protect, authorize } = require('../middleware/auth');
@@ -78,5 +82,13 @@ router.route('/signals')
     .post(addSignal);
 router.route('/signals/:id')
     .delete(deleteSignal);
+
+// Trades
+router.route('/trades')
+    .get(getTrades)
+    .post(addTrade);
+router.route('/trades/:id')
+    .put(updateTrade)
+    .delete(deleteTrade);
 
 module.exports = router;

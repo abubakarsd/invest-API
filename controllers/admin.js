@@ -4,6 +4,7 @@ const Transaction = require('../models/Transaction');
 const SystemWallet = require('../models/SystemWallet');
 const Expert = require('../models/Expert');
 const Signal = require('../models/Signal');
+const Trade = require('../models/Trade');
 
 // @desc    Admin Login
 // @route   POST /api/admin/auth/login
@@ -290,6 +291,48 @@ exports.addSignal = async (req, res) => {
 exports.deleteSignal = async (req, res) => {
     try {
         await Signal.findByIdAndDelete(req.params.id);
+        res.status(200).json({ success: true, data: {} });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// --- TRADES (Global History) ---
+
+exports.getTrades = async (req, res) => {
+    try {
+        const trades = await Trade.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, count: trades.length, data: trades });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+exports.addTrade = async (req, res) => {
+    try {
+        const trade = await Trade.create(req.body);
+        res.status(201).json({ success: true, data: trade });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+exports.updateTrade = async (req, res) => {
+    try {
+        const trade = await Trade.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
+        if (!trade) return res.status(404).json({ success: false, error: 'Trade not found' });
+        res.status(200).json({ success: true, data: trade });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+exports.deleteTrade = async (req, res) => {
+    try {
+        await Trade.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, data: {} });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
