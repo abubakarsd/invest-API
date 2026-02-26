@@ -8,32 +8,21 @@ const Trade = require('../models/Trade');
 const fs = require('fs');
 const path = require('path');
 
-// Helper to save Base64 image
-const saveBase64Image = (base64String, prefix) => {
+const cloudinary = require('../config/cloudinary');
+
+// Helper to save Base64 image directly to Cloudinary
+const uploadBase64ToCloudinary = async (base64String, folderName) => {
     if (!base64String || !base64String.startsWith('data:image')) return base64String;
 
-    const matches = base64String.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
-    if (!matches) return base64String;
-
-    const ext = matches[1];
-    const data = matches[2];
-    const buffer = Buffer.from(data, 'base64');
-
-    // Path to React App's public assets (Local Development Setup)
-    // process.cwd() is the root of where node was started (backend folder)
-    const uploadDir = path.join(process.cwd(), '../react-app/public/assets/dashboard/images');
-
-    // Ensure directory exists
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+    try {
+        const uploadResponse = await cloudinary.uploader.upload(base64String, {
+            folder: `invest-platform/${folderName}`
+        });
+        return uploadResponse.secure_url;
+    } catch (error) {
+        console.error('Cloudinary upload error:', error);
+        return base64String; // fallback, though it might broken if not a URL
     }
-
-    const filename = `${prefix}-${Date.now()}.${ext}`;
-    const fullPath = path.join(uploadDir, filename);
-
-    fs.writeFileSync(fullPath, buffer);
-
-    return filename;
 };
 
 // @desc    Admin Login
@@ -110,10 +99,11 @@ exports.addSystemWallet = async (req, res) => {
 
         if (req.files) {
             if (req.files.icon) {
-                icon = req.files.icon[0].filename;
+                // Cloudinary storage puts the URL in the 'path' property
+                icon = req.files.icon[0].path;
             }
             if (req.files.qrCode) {
-                qrCode = req.files.qrCode[0].filename;
+                qrCode = req.files.qrCode[0].path;
             }
         }
 
@@ -292,7 +282,7 @@ exports.addExpert = async (req, res) => {
         const { avatar } = req.body;
 
         if (avatar && avatar.startsWith('data:image')) {
-            req.body.avatar = saveBase64Image(avatar, 'expert-avatar');
+            req.body.avatar = await uploadBase64ToCloudinary(avatar, 'experts');
         }
 
         const expert = await Expert.create(req.body);

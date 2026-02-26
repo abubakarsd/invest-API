@@ -1,33 +1,14 @@
 const multer = require('multer');
-const { GridFsStorage } = require('multer-gridfs-storage');
-require('dotenv').config();
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-if (!process.env.MONGO_URI) {
-    console.error('FATAL: MONGO_URI is not defined in upload.js');
-}
-
-const storage = new GridFsStorage({
-    url: process.env.MONGO_URI,
-    options: { useNewUrlParser: true, useUnifiedTopology: true },
-    file: (req, file) => {
-        console.log('Processing file upload:', file.originalname);
-        return new Promise((resolve, reject) => {
-            const filename = `${Date.now()}-${file.originalname}`;
-            const fileInfo = {
-                filename: filename,
-                bucketName: 'uploads' // Collection name will be uploads.files and uploads.chunks
-            };
-            resolve(fileInfo);
-        });
-    }
-});
-
-storage.on('connection', (db) => {
-    console.log('Multer GridFS Connected to DB');
-});
-
-storage.on('connectionFailed', (err) => {
-    console.error('Multer GridFS Connection Failed:', err);
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'invest-platform',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif'],
+        // transformation: [{ width: 500, height: 500, crop: 'limit' }]
+    },
 });
 
 const upload = multer({ storage });
